@@ -102,8 +102,8 @@ header('Content-Type: text/html; charset=utf-8');?>
 			});
 
 			$("#dugme").click(function(){
-				var naziv = $("#naziv");
-				var smer = $("#smer");
+				var naziv = $("#naziv").val();
+				var smer = $("#smer").val();
 
 				if(naziv!="" && smer!=""){
 					$("#frm").submit();

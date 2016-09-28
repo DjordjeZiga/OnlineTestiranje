@@ -52,30 +52,70 @@ header('Content-Type: text/html; charset=utf-8');
 						$connection =mysqli_connect("localhost", "root", "", "onlinetestiranje");
 						$fkPredmeta=$_GET['fk_predmeta'];
 						$idTesta=$_GET['id_testa'];
-						$query = "SELECT pitanja.pitanje,pitanja.odg1,pitanja.odg2,pitanja.odg3,pitanja.odg4 FROM pitanja
+						$query = "SELECT pitanja.pitanje,pitanja.odg1,pitanja.odg2,pitanja.odg3,pitanja.odg4, pitanja.tacan FROM pitanja
 								  INNER  JOIN test_ima_pitanje
 								  ON test_ima_pitanje.fk_pitanje=pitanja.id_pitanja
 								  WHERE test_ima_pitanje.fk_test=$idTesta"; //You don't need a ; like you do in SQL
 						$result = mysqli_query($connection, $query);
-
-						while($row = mysqli_fetch_array($result)){   //Creates a loop to loop through results
+						$i = 0;
+						while($row = mysqli_fetch_array($result)){
+							//Creates a loop to loop through results
+							$i++;
 							echo $row[0];
-							print "<br><input type='radio' name='$row[0]' value='$row[1]'>";
+							print "<br><input type='radio' name='$i' value='$row[1]'>";
 							echo $row[1];
-							print "<br><input type='radio' name='$row[0]' value='$row[2]'>";
+							print "<br><input type='radio' name='$i' value='$row[2]'>";
 							echo $row[2];
-							print "<br><input type='radio' name='$row[0]' value='$row[3]'>";
+							print "<br><input type='radio' name='$i' value='$row[3]'>";
 							echo $row[3];
-							print "<br><input type='radio' name='$row[0]' value='$row[4]'>";
+							print "<br><input type='radio' name='$i' value='$row[4]'>";
 							echo $row[4];
-							print "<br><br>";
+							print "<br>";
+							print "<br><input type='hidden' value='$row[5]' id='re$i'>";
 						}
-
+						print "<br><input type='hidden' value='$i' id='ukupno'>";
 						mysqli_close($connection); //Make sure to close out the database connection
 						?>
 					</div>
 				</div>
+				<form id="predajTest" action="../skripte/predajTest.php" method="post">
+					<input type="hidden" name="stId" value="<?php echo "$_SESSION[id]"; ?>">
+					<input type="hidden" name="idTesta" value="<?php echo "$_GET[id_testa]"; ?>">
+					<input type="hidden" name="fkPredmeta" value="<?php echo "$_GET[fk_predmeta]"; ?>">
+					<input type="hidden" name="ocena" id="ocena">
+					<button type="button" class="btn btn-danger" id="predaj">Zavrsi</button>
+				</form>
 			</div>
 			</div>
 	</body>
+<script type="text/javascript">
+	$('#predaj').click(function () {
+		var brojPitanja = $('#ukupno').val();
+		var brojTacnih = 0;
+		for (var i=1; i<=brojPitanja; i++){
+			var odgovor = $("[name='" + i + "']:checked").val();
+			var tacanOdgovor = $("[id='re" + i + "']").val();
+			if (odgovor==tacanOdgovor){
+				brojTacnih++;
+			}
+		}
+		var procenti = (brojTacnih/brojPitanja) * 100;
+		var ocena = 5;
+		if(procenti < 51){
+			ocena = 5;
+		} else if(procenti < 61){
+			ocena = 6;
+		}else if(procenti < 71){
+			ocena = 7;
+		}else if(procenti < 81){
+			ocena = 8;
+		}else if(procenti < 91){
+			ocena = 9;
+		} else {
+			ocena = 10;
+		}
+		$('#ocena').val(ocena);
+		$("#predajTest").submit();
+	});
+</script>
 </html>
